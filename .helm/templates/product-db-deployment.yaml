@@ -1,0 +1,42 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Values.db.name }}-db
+  labels:
+    app: {{ .Values.db.name }}-db
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: {{ .Values.db.name }}-db
+  template:
+    metadata:
+      name: {{ .Values.db.name }}-db
+      labels:
+        app: {{ .Values.db.name }}-db
+    spec:
+      containers:
+        - name: {{ .Values.db.name }}-db
+          env:
+            - name: POSTGRES_DB
+              value: {{ .Values.db.name }}
+            - name: POSTGRES_USER
+              value: {{ .Values.db.user.name }}
+            - name: POSTGRES_PASSWORD
+              value: {{ .Values.db.user.password }}
+          image: {{ .Values.db.image }}
+          imagePullPolicy: IfNotPresent
+      restartPolicy: Always
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ .Values.db.name }}-db
+spec:
+  type: LoadBalancer
+  selector:
+    app: {{ .Values.db.name }}-db
+  ports:
+    - protocol: TCP
+      port: {{ .Values.db.port }}
+      targetPort: {{ .Values.db.externalPort }}

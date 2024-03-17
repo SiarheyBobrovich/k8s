@@ -1,0 +1,16 @@
+app:
+  name: product-service
+  replicaCount: 1
+  image: sbobrovich/product-service:1.1.0
+port:
+  containerPort: 8080
+  externalPort: 9999
+db:
+  image: postgres:15.1
+  name: products
+  url: jdbc:postgresql://product-db:5432/
+  user:
+    name: postgres_user
+    password: postgres_password
+  port: 5432
+  externalPort: 5432

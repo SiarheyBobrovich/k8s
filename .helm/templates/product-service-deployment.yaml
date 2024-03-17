@@ -1,0 +1,44 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Values.app.name }}-deployment
+  labels:
+    app: {{ .Values.app.name }}-deployment
+spec:
+  replicas: {{ .Values.app.replicaCount }}
+  selector:
+    matchLabels:
+      app: {{ .Values.app.name }}-deployment
+  template:
+    metadata:
+      name: {{ .Values.app.name }}-deployment
+      labels:
+        app: {{ .Values.app.name }}-deployment
+    spec:
+      containers:
+        - name: {{ .Values.app.name }}-deployment
+          image: {{ .Values.app.image }}
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: {{ .Values.port.containerPort }}
+          env:
+            - name: POSTGRES_URL
+              value: jdbc:postgresql://{{ .Values.db.name }}-db:{{ .Values.db.port }}/{{ .Values.db.name }}
+            - name: POSTGRES_USER
+              value: {{ .Values.db.user.name }}
+            - name: POSTGRES_PASSWORD
+              value: {{ .Values.db.user.password }}
+      restartPolicy: Always
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ .Values.app.name }}-deployment
+spec:
+  type: LoadBalancer
+  selector:
+    app: {{ .Values.app.name }}-deployment
+  ports:
+    - protocol: TCP
+      port: {{ .Values.port.externalPort }}
+      targetPort: {{ .Values.port.containerPort }}
